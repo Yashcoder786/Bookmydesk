@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   XCircle,
   RefreshCw,
+  Building,
 } from "lucide-react";
 
 export default function MyBookingsPage() {
@@ -21,7 +22,6 @@ export default function MyBookingsPage() {
   const [filterTab, setFilterTab] = useState("ALL");
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelModalBooking, setCancelModalBooking] = useState<any | null>(null);
-  const [cancelReason, setCancelReason] = useState("Schedule changed");
 
   useEffect(() => {
     loadBookings();
@@ -50,7 +50,7 @@ export default function MyBookingsPage() {
       const res = await fetch(`/api/bookings/${cancelModalBooking.id}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: cancelReason }),
+        body: JSON.stringify({ reason: "Customer requested cancellation" }),
       });
       const data = await res.json();
       if (data.success) {
@@ -68,22 +68,33 @@ export default function MyBookingsPage() {
   };
 
   return (
-    <div style={{ maxWidth: 1100, margin: "2rem auto", padding: "0 1.5rem 5rem" }}>
+    <div style={{ maxWidth: 1100, margin: "2rem auto 5rem", padding: "0 2rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.85rem", fontWeight: 800, color: "var(--text-main)", letterSpacing: "-0.02em" }}>
-            My Workspace Reservations
+          <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>
+            My Bookings
           </h1>
-          <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
-            Manage upcoming stays, download entry passes, or cancel according to policy
+          <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "0.2rem" }}>
+            View your reserved desks, cabins, and entry passes
           </p>
         </div>
 
         <button
           type="button"
           onClick={loadBookings}
-          className="btn-secondary"
-          style={{ padding: "0.45rem 0.85rem", fontSize: "0.82rem" }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            padding: "0.45rem 0.85rem",
+            borderRadius: "8px",
+            border: "1px solid #cbd5e1",
+            background: "#ffffff",
+            color: "#475569",
+            fontSize: "0.82rem",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
         >
           <RefreshCw size={14} />
           <span>Refresh</span>
@@ -91,21 +102,21 @@ export default function MyBookingsPage() {
       </div>
 
       {/* Filter Tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.75rem", marginBottom: "2rem", overflowX: "auto" }}>
+      <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1px solid #e2e8f0", paddingBottom: "0.75rem", marginBottom: "1.75rem" }}>
         {["ALL", "CONFIRMED", "CHECKED_IN", "CANCELLED"].map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setFilterTab(tab)}
             style={{
-              padding: "0.5rem 1rem",
-              borderRadius: "var(--radius-md)",
+              padding: "0.45rem 1rem",
+              borderRadius: "8px",
               border: "none",
               cursor: "pointer",
               fontSize: "0.85rem",
               fontWeight: 600,
-              background: filterTab === tab ? "rgba(59, 130, 246, 0.2)" : "transparent",
-              color: filterTab === tab ? "#60a5fa" : "var(--text-muted)",
+              background: filterTab === tab ? "#eff6ff" : "transparent",
+              color: filterTab === tab ? "#1d4ed8" : "#64748b",
             }}
           >
             {tab === "ALL" ? "All Bookings" : tab.replace("_", " ")}
@@ -114,25 +125,37 @@ export default function MyBookingsPage() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "4rem 0", color: "var(--text-muted)" }}>
-          <div style={{ width: 40, height: 40, border: "3px solid #1e293b", borderTopColor: "#3b82f6", borderRadius: "50%", margin: "0 auto 1rem", animation: "spin 1s linear infinite" }}></div>
+        <div style={{ textAlign: "center", padding: "4rem 0", color: "#64748b" }}>
+          <div style={{ width: 36, height: 36, border: "3px solid #e2e8f0", borderTopColor: "#2563eb", borderRadius: "50%", margin: "0 auto 1rem", animation: "spin 1s linear infinite" }}></div>
           <p>Loading your reservations...</p>
         </div>
       ) : bookings.length === 0 ? (
-        <div className="glass-panel" style={{ padding: "4rem 2rem", textAlign: "center", maxWidth: 500, margin: "2rem auto" }}>
-          <Calendar size={44} color="#64748b" style={{ margin: "0 auto 1rem" }} />
-          <h3 style={{ fontSize: "1.2rem", color: "var(--text-main)", marginBottom: "0.5rem" }}>
+        <div className="clean-card" style={{ padding: "3.5rem 2rem", textAlign: "center", maxWidth: 500, margin: "2rem auto" }}>
+          <Calendar size={40} color="#94a3b8" style={{ margin: "0 auto 1rem" }} />
+          <h3 style={{ fontSize: "1.2rem", color: "#0f172a", marginBottom: "0.4rem" }}>
             No Bookings Found
           </h3>
-          <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "1.5rem" }}>
-            You have no active workspace reservations in this view.
+          <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "1.5rem" }}>
+            You haven&apos;t reserved any desks or cabins yet.
           </p>
-          <Link href="/" className="btn-primary">
-            Explore & Book Workspaces
+          <Link
+            href="/"
+            style={{
+              display: "inline-block",
+              background: "#2563eb",
+              color: "#ffffff",
+              padding: "0.6rem 1.25rem",
+              borderRadius: "8px",
+              textDecoration: "none",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+            }}
+          >
+            Explore Workspaces
           </Link>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {bookings.map((b) => {
             const item = b.items[0]?.inventoryItem;
             let snapshot: any = {};
@@ -144,16 +167,26 @@ export default function MyBookingsPage() {
             const isCheckedIn = b.status === "CHECKED_IN";
 
             return (
-              <div key={b.id} className="glass-panel" style={{ padding: "1.5rem", display: "grid", gridTemplateColumns: "100px 1fr auto", gap: "1.5rem", alignItems: "center" }}>
+              <div
+                key={b.id}
+                className="clean-card"
+                style={{
+                  padding: "1.25rem 1.5rem",
+                  display: "grid",
+                  gridTemplateColumns: "80px 1fr auto",
+                  gap: "1.25rem",
+                  alignItems: "center",
+                }}
+              >
                 <img
                   src={b.property.coverImage}
                   alt={b.property.name}
-                  style={{ width: 100, height: 100, borderRadius: "var(--radius-md)", objectFit: "cover" }}
+                  style={{ width: 80, height: 80, borderRadius: "10px", objectFit: "cover" }}
                 />
 
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.35rem" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, fontFamily: "var(--font-mono)", color: "#38bdf8", background: "rgba(56, 189, 248, 0.15)", padding: "0.15rem 0.5rem", borderRadius: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.3rem" }}>
+                    <span style={{ fontSize: "0.78rem", fontWeight: 700, fontFamily: "var(--font-mono)", color: "#1d4ed8", background: "#eff6ff", padding: "0.15rem 0.5rem", borderRadius: 4 }}>
                       {b.id}
                     </span>
                     <span
@@ -162,42 +195,46 @@ export default function MyBookingsPage() {
                         fontWeight: 700,
                         padding: "0.15rem 0.5rem",
                         borderRadius: 4,
-                        background: isCancelled ? "rgba(239, 68, 68, 0.15)" : isCheckedIn ? "rgba(59, 130, 246, 0.2)" : "rgba(16, 185, 129, 0.15)",
-                        color: isCancelled ? "#f87171" : isCheckedIn ? "#60a5fa" : "#34d399",
+                        background: isCancelled ? "#fee2e2" : isCheckedIn ? "#eff6ff" : "#dcfce7",
+                        color: isCancelled ? "#b91c1c" : isCheckedIn ? "#1d4ed8" : "#15803d",
                       }}
                     >
                       {b.status}
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--text-main)", marginBottom: "0.25rem" }}>
+                  <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#0f172a", marginBottom: "0.25rem" }}>
                     {b.property.name}
                   </h3>
 
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "1.25rem", fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "0.4rem" }}>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#fff", fontWeight: 600 }}>
-                      <Armchair size={15} color="#60a5fa" />
-                      Seat: {snapshot.code || item?.code || "Desk"}
-                    </span>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <Calendar size={14} color="#38bdf8" />
-                      {new Date(b.startAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                    </span>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <Clock size={14} color="#fbbf24" />
-                      {b.property.openingHours}
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "1.25rem", fontSize: "0.82rem", color: "#64748b" }}>
+                    <span style={{ fontWeight: 600, color: "#1d4ed8" }}>
+                      Unit: {snapshot.code || item?.code || "Desk"}
                     </span>
                     <span>
-                      Paid: <strong>₹{b.totalAmount}</strong>
+                      {new Date(b.startAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </span>
+                    <span>
+                      Amount: <strong>₹{b.totalAmount}</strong> (No online payment)
                     </span>
                   </div>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "flex-end" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", alignItems: "flex-end" }}>
                   <Link
                     href={`/pass/${b.id}`}
-                    className="btn-primary"
-                    style={{ padding: "0.5rem 1rem", fontSize: "0.85rem", width: "100%", justifyContent: "center" }}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      background: "#2563eb",
+                      color: "#ffffff",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "8px",
+                      textDecoration: "none",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                    }}
                   >
                     <QrCode size={15} />
                     <span>View QR Pass</span>
@@ -207,10 +244,16 @@ export default function MyBookingsPage() {
                     <button
                       type="button"
                       onClick={() => setCancelModalBooking(b)}
-                      className="btn-secondary"
-                      style={{ padding: "0.4rem 0.85rem", fontSize: "0.78rem", color: "#f87171" }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#ef4444",
+                        fontSize: "0.78rem",
+                        cursor: "pointer",
+                        fontWeight: 500,
+                      }}
                     >
-                      Cancel Booking
+                      Cancel Reservation
                     </button>
                   )}
                 </div>
@@ -220,52 +263,30 @@ export default function MyBookingsPage() {
         </div>
       )}
 
-      {/* Cancellation Modal */}
+      {/* Cancel Modal */}
       {cancelModalBooking && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
-          <div className="glass-panel-elevated" style={{ maxWidth: 500, width: "100%", padding: "2rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem", color: "#ef4444" }}>
-              <AlertTriangle size={24} />
-              <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#fff" }}>
-                Confirm Cancellation
-              </h3>
-            </div>
-
-            <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-              Are you sure you want to cancel booking <strong>{cancelModalBooking.id}</strong> at <strong>{cancelModalBooking.property.name}</strong>?
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(15,23,42,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+          <div className="clean-card" style={{ maxWidth: 440, width: "100%", padding: "1.75rem", background: "#ffffff" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0f172a", marginBottom: "0.75rem" }}>
+              Cancel Reservation
+            </h3>
+            <p style={{ fontSize: "0.88rem", color: "#475569", lineHeight: 1.5, marginBottom: "1.25rem" }}>
+              Are you sure you want to cancel your booking <strong>{cancelModalBooking.id}</strong> at <strong>{cancelModalBooking.property.name}</strong>?
             </p>
-
-            <div style={{ padding: "0.85rem", background: "rgba(0,0,0,0.4)", borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)", fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: "1.5rem" }}>
-              <div style={{ color: "#38bdf8", fontWeight: 700, marginBottom: 4 }}>
-                Refund Policy Calculation (PRD Section 6.3):
-              </div>
-              <div>• 100% refund if cancelled 24+ hours before reservation.</div>
-              <div>• 80% refund if cancelled within 24 hours.</div>
-              <div>• Your seat will be immediately released back to available inventory.</div>
-            </div>
-
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-dim)", textTransform: "uppercase", fontWeight: 700, marginBottom: "0.35rem" }}>
-                Reason for cancellation
-              </label>
-              <select
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                style={{ width: "100%", padding: "0.6rem", background: "#111726", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)", color: "#fff" }}
-              >
-                <option value="Schedule changed">Schedule changed</option>
-                <option value="Booked wrong workspace / seat">Booked wrong workspace / seat</option>
-                <option value="Meeting moved online">Meeting moved online</option>
-                <option value="Other reason">Other reason</option>
-              </select>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
               <button
                 type="button"
                 onClick={() => setCancelModalBooking(null)}
-                className="btn-secondary"
-                style={{ padding: "0.6rem 1.25rem" }}
+                style={{
+                  padding: "0.55rem 1rem",
+                  borderRadius: "8px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#475569",
+                  fontWeight: 600,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                }}
               >
                 Keep Booking
               </button>
@@ -274,16 +295,17 @@ export default function MyBookingsPage() {
                 onClick={handleCancelBooking}
                 disabled={cancellingId !== null}
                 style={{
-                  background: "#dc2626",
-                  color: "#fff",
+                  padding: "0.55rem 1rem",
+                  borderRadius: "8px",
                   border: "none",
-                  padding: "0.6rem 1.25rem",
-                  borderRadius: "var(--radius-md)",
+                  background: "#ef4444",
+                  color: "#ffffff",
                   fontWeight: 600,
+                  fontSize: "0.85rem",
                   cursor: "pointer",
                 }}
               >
-                {cancellingId ? "Cancelling..." : "Confirm Cancellation"}
+                {cancellingId ? "Cancelling..." : "Confirm Cancel"}
               </button>
             </div>
           </div>
