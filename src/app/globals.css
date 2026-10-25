@@ -1,0 +1,687 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Core Color Palette - Deep Slate, Midnight Navy, Electric Blue & Teal Accent */
+  --bg-primary: #0a0d14;
+  --bg-surface: #111726;
+  --bg-surface-elevated: #182238;
+  --bg-card: rgba(18, 26, 44, 0.75);
+  --bg-glass: rgba(17, 24, 39, 0.7);
+  --bg-glass-border: rgba(255, 255, 255, 0.08);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --accent-primary: #3b82f6;
+  --accent-primary-hover: #2563eb;
+  --accent-primary-glow: rgba(59, 130, 246, 0.35);
+
+  --accent-teal: #06b6d4;
+  --accent-cyan-glow: rgba(6, 182, 212, 0.3);
+
+  /* Seat Status Colors matching PRD Section 7.2 */
+  --seat-available-bg: rgba(16, 185, 129, 0.15);
+  --seat-available-border: #10b981;
+  --seat-available-text: #34d399;
+  --seat-available-glow: rgba(16, 185, 129, 0.35);
+
+  --seat-selected-bg: #3b82f6;
+  --seat-selected-border: #60a5fa;
+  --seat-selected-text: #ffffff;
+  --seat-selected-glow: rgba(59, 130, 246, 0.6);
+
+  --seat-held-bg: rgba(245, 158, 11, 0.18);
+  --seat-held-border: #f59e0b;
+  --seat-held-text: #fbbf24;
+  --seat-held-glow: rgba(245, 158, 11, 0.4);
+
+  --seat-booked-bg: rgba(71, 85, 105, 0.4);
+  --seat-booked-border: #475569;
+  --seat-booked-text: #94a3b8;
+
+  --seat-maintenance-bg: rgba(239, 68, 68, 0.15);
+  --seat-maintenance-border: #ef4444;
+  --seat-maintenance-text: #f87171;
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 35px -5px var(--accent-primary-glow);
+  --shadow-emerald: 0 0 25px -4px var(--seat-available-glow);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Glassmorphic Panel Utility */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--bg-glass-border);
+  box-shadow: var(--shadow-subtle);
+  border-radius: var(--radius-md);
+}
+
+.glass-panel-elevated {
+  background: rgba(24, 34, 56, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  border-radius: var(--radius-lg);
+}
+
+/* Header & Nav */
+.header-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 13, 20, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.85rem 1.5rem;
+}
+
+.nav-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.logo-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px var(--accent-primary-glow);
+  color: #fff;
+}
+
+/* City Badge & Quick Switcher */
+.city-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.city-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text-main);
+  border-color: var(--border-hover);
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px var(--accent-primary-glow);
+  text-decoration: none;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  filter: brightness(1.08);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-hover);
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 14px var(--seat-available-glow);
+  color: #fff;
+}
+.btn-accent:hover {
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.5);
+}
+
+/* Hero Section */
+.hero-gradient {
+  background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.05) 45%, transparent 70%);
+  padding: 3.5rem 1.5rem 2rem;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+  background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 680px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+/* Search Bar (BookMyShow Style) */
+.search-bar-widget {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(24, 34, 56, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.85rem;
+  background: rgba(10, 13, 20, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease;
+}
+.search-field:focus-within {
+  border-color: var(--accent-primary);
+}
+.search-field label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 0.2rem;
+}
+.search-field input,
+.search-field select {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 500;
+}
+.search-field select option {
+  background: #111726;
+  color: #fff;
+}
+
+/* Property Cards */
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.75rem;
+  max-width: 1320px;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem;
+}
+
+.property-card {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+.property-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 25px -5px var(--accent-primary-glow);
+}
+
+.property-cover-container {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+}
+.property-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.property-card:hover .property-cover-img {
+  transform: scale(1.05);
+}
+
+.property-rating-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: rgba(10, 13, 20, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #fbbf24;
+}
+
+.property-city-badge {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.property-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.property-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.35rem;
+  color: var(--text-main);
+}
+
+.property-address {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.amenity-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.amenity-chip {
+  padding: 0.25rem 0.55rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.property-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.price-tag {
+  display: flex;
+  flex-direction: column;
+}
+.price-tag .from-label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.price-tag .amount {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+}
+.price-tag .amount span {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Interactive Seat Map Metaphor (BookMyShow Floor Layout) */
+.map-viewport {
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #151d30 0%, #0c101d 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  min-height: 540px;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+.map-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Seat Nodes */
+.seat-node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 4px;
+}
+
+/* Status variants matching PRD Section 7.2 */
+.seat-node.status-AVAILABLE {
+  background: var(--seat-available-bg);
+  border: 1.5px solid var(--seat-available-border);
+  color: var(--seat-available-text);
+}
+.seat-node.status-AVAILABLE:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: var(--shadow-emerald);
+  filter: brightness(1.2);
+}
+
+.seat-node.status-SELECTED {
+  background: var(--seat-selected-bg);
+  border: 2px solid var(--seat-selected-border);
+  color: var(--seat-selected-text);
+  box-shadow: var(--shadow-glow);
+  transform: scale(1.08);
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.seat-node.status-HELD {
+  background: var(--seat-held-bg);
+  border: 1.5px dashed var(--seat-held-border);
+  color: var(--seat-held-text);
+  cursor: not-allowed;
+  animation: pulse-held 1.5s infinite ease-in-out;
+}
+
+.seat-node.status-BOOKED {
+  background: var(--seat-booked-bg);
+  border: 1.5px solid var(--seat-booked-border);
+  color: var(--seat-booked-text);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.seat-node.status-MAINTENANCE {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(239, 68, 68, 0.1) 8px,
+    rgba(239, 68, 68, 0.25) 8px,
+    rgba(239, 68, 68, 0.25) 16px
+  );
+  border: 1.5px solid var(--seat-maintenance-border);
+  color: var(--seat-maintenance-text);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.seat-node.status-BLOCKED {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid #334155;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Cabin Nodes (Larger Area) */
+.cabin-node {
+  border-radius: 14px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 2px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+.cabin-node:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+}
+
+/* Legend */
+.seat-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.legend-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+/* Floating Bottom Checkout Bar (BookMyShow Style) */
+.checkout-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hold Countdown Urgency Banner */
+.hold-timer-banner {
+  background: linear-gradient(90deg, #b45309, #d97706);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+}
+
+/* QR Pass Digital Card */
+.digital-pass {
+  background: linear-gradient(145deg, #182238, #0e1526);
+  border: 2px dashed rgba(59, 130, 246, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+}
+.digital-pass::before,
+.digital-pass::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.digital-pass::before {
+  left: -14px;
+}
+.digital-pass::after {
+  right: -14px;
+}
+
+/* Keyframe Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(59, 130, 246, 0.95);
+  }
+}
+
+@keyframes pulse-held {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-bar-widget {
+    grid-template-columns: 1fr;
+  }
+  .property-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-title {
+    font-size: 2rem;
+  }
+}

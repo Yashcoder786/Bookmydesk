@@ -1,0 +1,238 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                 String          @id @default(cuid())
+  email              String          @unique
+  name               String
+  phone              String?
+  role               String          @default("CUSTOMER") // CUSTOMER, PARTNER, ADMIN
+  avatarUrl          String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  partnerProfile     PartnerProfile?
+  bookings           Booking[]
+  holds              InventoryHold[]
+  reviews            Review[]
+}
+
+model PartnerProfile {
+  id                 String          @id @default(cuid())
+  userId             String          @unique
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessName       String
+  contactPhone       String?
+  verificationStatus String          @default("APPROVED") // PENDING, APPROVED, REJECTED
+  gstin              String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  properties         Property[]
+}
+
+model Property {
+  id                 String          @id @default(cuid())
+  partnerId          String
+  partner            PartnerProfile  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  name               String
+  slug               String          @unique
+  tagline            String?
+  description        String
+  address            String
+  city               String
+  locality           String
+  landmark           String?
+  latitude           Float?
+  longitude          Float?
+  timezone           String          @default("Asia/Kolkata")
+  openingHours       String          @default("08:00 - 21:00")
+  status             String          @default("PUBLISHED") // DRAFT, PENDING_APPROVAL, PUBLISHED, SUSPENDED
+  coverImage         String
+  galleryImages      String          @default("[]") // JSON string of urls
+  rating             Float           @default(4.8)
+  reviewCount        Int             @default(24)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  floors             Floor[]
+  amenities          PropertyAmenity[]
+  ratePlans          RatePlan[]
+  bookings           Booking[]
+  reviews            Review[]
+}
+
+model Amenity {
+  id                 String          @id @default(cuid())
+  name               String          @unique
+  icon               String          @default("Wifi")
+  category           String          @default("Work") // Work, Comfort, Utilities, Leisure
+  properties         PropertyAmenity[]
+}
+
+model PropertyAmenity {
+  propertyId         String
+  amenityId          String
+  property           Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenity            Amenity         @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, amenityId])
+}
+
+model Floor {
+  id                 String          @id @default(cuid())
+  propertyId         String
+  property           Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name               String          // e.g. "Ground Floor (Quiet Wing)", "1st Floor (Collab Hub)"
+  floorNumber        Int             @default(0)
+  sortOrder          Int             @default(0)
+  createdAt          DateTime        @default(now())
+
+  zones              Zone[]
+}
+
+model Zone {
+  id                 String          @id @default(cuid())
+  floorId            String
+  floor              Floor           @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  name               String          // e.g. "Focus Zone", "Hot Desk Bay A", "Executive Cabins"
+  type               String          @default("OPEN_DESK") // OPEN_DESK, PRIVATE_CABIN, MEETING_ROOM
+  colorCode          String          @default("#3b82f6")
+  createdAt          DateTime        @default(now())
+
+  items              InventoryItem[]
+}
+
+model InventoryItem {
+  id                 String          @id @default(cuid())
+  zoneId             String
+  zone               Zone            @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  code               String          // e.g. "D-01", "D-08", "C-01"
+  name               String          // e.g. "Quiet Corner Hot Desk 01"
+  type               String          // HOT_DESK, DEDICATED_DESK, PRIVATE_CABIN, MEETING_ROOM
+  capacity           Int             @default(1)
+  features           String          @default("[]") // JSON string of features: ["Ergo Chair", "Dual Power", "Dual Monitor"]
+  mapX               Int             // pixel or grid X on floor plan
+  mapY               Int             // pixel or grid Y on floor plan
+  width              Int             @default(64)
+  height             Int             @default(64)
+  activeStatus       String          @default("ACTIVE") // ACTIVE, MAINTENANCE, BLOCKED
+  createdAt          DateTime        @default(now())
+
+  bookings           BookingItem[]
+  holds              InventoryHold[]
+  blocks             AvailabilityBlock[]
+}
+
+model RatePlan {
+  id                 String          @id @default(cuid())
+  propertyId         String
+  property           Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  inventoryType      String          // HOT_DESK, DEDICATED_DESK, PRIVATE_CABIN, MEETING_ROOM
+  billingUnit        String          // DAY, MONTH
+  price              Float           // in INR
+  discountPercent    Float           @default(0)
+  createdAt          DateTime        @default(now())
+}
+
+model InventoryHold {
+  id                 String          @id @default(cuid())
+  userId             String
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inventoryItemId    String
+  inventoryItem      InventoryItem   @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  startAt            DateTime
+  endAt              DateTime
+  expiresAt          DateTime        // typically now + 5 minutes
+  status             String          @default("ACTIVE") // ACTIVE, EXPIRED, CONVERTED, RELEASED
+  createdAt          DateTime        @default(now())
+}
+
+model AvailabilityBlock {
+  id                 String          @id @default(cuid())
+  inventoryItemId    String
+  inventoryItem      InventoryItem   @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  startAt            DateTime
+  endAt              DateTime
+  reason             String
+  createdAt          DateTime        @default(now())
+}
+
+model Booking {
+  id                 String          @id // e.g. "CW-10482"
+  bookingRef         String          @unique // e.g. "BK-20261025-ABCD"
+  userId             String
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId         String
+  property           Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  bookingPlan        String          @default("DAY") // DAY, MONTH
+  startAt            DateTime
+  endAt              DateTime
+  status             String          @default("CONFIRMED") // HELD, CONFIRMED, CHECKED_IN, COMPLETED, CANCELLED
+  
+  guestName          String
+  guestEmail         String
+  guestPhone         String?
+  
+  subtotal           Float
+  taxAmount          Float           @default(0)
+  discountAmount     Float           @default(0)
+  totalAmount        Float
+  currency           String          @default("INR")
+  
+  cancellationPolicy String          @default("Free cancellation up to 24 hours before check-in. 80% refund within 24 hours.")
+  checkInQrData      String?
+  checkedInAt        DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+  refundAmount       Float?
+  
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  items              BookingItem[]
+  payments           Payment[]
+  reviews            Review[]
+}
+
+model BookingItem {
+  id                 String          @id @default(cuid())
+  bookingId          String
+  booking            Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  inventoryItemId    String
+  inventoryItem      InventoryItem   @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  unitPrice          Float
+  itemSnapshot       String?         // JSON snapshot of item details
+}
+
+model Payment {
+  id                 String          @id @default(cuid())
+  bookingId          String
+  booking            Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  provider           String          @default("SIMULATED")
+  providerRef        String?
+  amount             Float
+  currency           String          @default("INR")
+  status             String          @default("SUCCESS") // SUCCESS, PENDING, FAILED, REFUNDED
+  paymentMethod      String          @default("MOCK_UPI") // MOCK_UPI, MOCK_CARD, PAY_AT_DESK
+  idempotencyKey     String?         @unique
+  createdAt          DateTime        @default(now())
+}
+
+model Review {
+  id                 String          @id @default(cuid())
+  userId             String
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId         String
+  property           Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  bookingId          String?
+  booking            Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  rating             Int             @default(5)
+  comment            String
+  createdAt          DateTime        @default(now())
+}
