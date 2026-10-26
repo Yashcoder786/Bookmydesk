@@ -47,7 +47,7 @@ async function main() {
   const adminUser = await prisma.user.create({
     data: {
       id: "usr_admin_1",
-      email: "admin@coworkspace.in",
+      email: "admin@bookmydesk.in",
       name: "Platform Administrator",
       phone: "+91 99999 88888",
       role: "ADMIN",

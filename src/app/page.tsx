@@ -1,19 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Search,
   MapPin,
-  Calendar,
-  Layers,
   Star,
   ArrowRight,
-  ShieldCheck,
-  Clock,
   Sparkles,
-  Wifi,
-  Coffee,
 } from "lucide-react";
 import { PropertyCardDTO } from "@/lib/types";
 
@@ -57,16 +51,49 @@ export default function HomePage() {
     <div style={{ maxWidth: 1360, margin: "2rem auto 5rem", padding: "0 2rem" }}>
       {/* Hero Header */}
       <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.85rem", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "9999px", fontSize: "0.82rem", color: "#1d4ed8", fontWeight: 600, marginBottom: "1rem" }}>
-          <Sparkles size={14} /> Instant Workspace & Desk Reservation
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.3rem 0.85rem",
+            background: "rgba(248, 182, 70, 0.15)",
+            border: "1px solid rgba(248, 182, 70, 0.35)",
+            borderRadius: "9999px",
+            fontSize: "0.82rem",
+            color: "#FBCD54",
+            fontWeight: 600,
+            marginBottom: "1.25rem",
+          }}
+        >
+          <Sparkles size={14} /> Instant Workspace &amp; Desk Reservation
         </div>
 
-        <h1 style={{ fontSize: "2.75rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.03em", marginBottom: "0.75rem" }}>
-          Find & Book Your Ideal Co-Working Space
+        <h1
+          style={{
+            fontSize: "3rem",
+            fontWeight: 800,
+            letterSpacing: "-0.03em",
+            marginBottom: "0.75rem",
+            background: "linear-gradient(135deg, #e2e8f0 0%, #FCC7B0 40%, #FBCD54 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          Find &amp; Book Your Ideal Co-Working Space
         </h1>
 
-        <p style={{ fontSize: "1.05rem", color: "#475569", maxWidth: "650px", margin: "0 auto 2rem", lineHeight: 1.6 }}>
-          Choose your city, explore verified hubs, click any location, inspect the unit layout, and reserve your desk or cabin in seconds.
+        <p
+          style={{
+            fontSize: "1.05rem",
+            color: "#94a3b8",
+            maxWidth: "620px",
+            margin: "0 auto 2rem",
+            lineHeight: 1.65,
+          }}
+        >
+          Choose your city, explore verified hubs, inspect the unit layout, and reserve your desk or cabin in seconds.
         </p>
 
         {/* Search Bar */}
@@ -80,29 +107,29 @@ export default function HomePage() {
             display: "flex",
             alignItems: "center",
             gap: "0.75rem",
-            boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)",
           }}
         >
-          <Search size={18} color="#64748b" />
+          <Search size={18} color="#F8B646" />
           <input
             type="text"
-            placeholder="Search by hub name or locality (e.g. Bandra, Andheri, Koramangala)..."
+            placeholder="Search by hub name or locality (e.g. Bandra, Koramangala)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               flex: 1,
               border: "none",
               outline: "none",
-              fontSize: "0.95rem",
+              fontSize: "0.92rem",
               fontFamily: "inherit",
-              color: "#0f172a",
+              color: "#e2e8f0",
               background: "transparent",
             }}
           />
           <button
             type="submit"
             style={{
-              background: "#2563eb",
+              background: "linear-gradient(135deg, #F8B646 0%, #d4981f 100%)",
               color: "#ffffff",
               padding: "0.65rem 1.35rem",
               borderRadius: "10px",
@@ -110,6 +137,8 @@ export default function HomePage() {
               fontWeight: 600,
               fontSize: "0.9rem",
               cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(248,182,70,0.4)",
+              transition: "all 0.2s ease",
             }}
           >
             Search
@@ -117,22 +146,35 @@ export default function HomePage() {
         </form>
 
         {/* City Filter Pills */}
-        <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginTop: "1.25rem", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "0.5rem",
+            marginTop: "1.25rem",
+            flexWrap: "wrap",
+          }}
+        >
           {cities.map((city) => (
             <button
               key={city}
               type="button"
               onClick={() => setSelectedCity(city)}
               style={{
-                padding: "0.35rem 0.85rem",
+                padding: "0.4rem 1rem",
                 borderRadius: "9999px",
-                border: selectedCity === city ? "1.5px solid #2563eb" : "1px solid #e2e8f0",
-                background: selectedCity === city ? "#eff6ff" : "#ffffff",
-                color: selectedCity === city ? "#1d4ed8" : "#64748b",
+                border: selectedCity === city
+                  ? "1.5px solid rgba(248,182,70,0.7)"
+                  : "1px solid rgba(255,255,255,0.1)",
+                background: selectedCity === city
+                  ? "rgba(248,182,70,0.2)"
+                  : "rgba(255,255,255,0.04)",
+                color: selectedCity === city ? "#FBCD54" : "#94a3b8",
                 fontWeight: 600,
                 fontSize: "0.82rem",
                 cursor: "pointer",
                 transition: "all 0.15s ease",
+                fontFamily: "inherit",
               }}
             >
               {city === "ALL" ? "All Locations" : city}
@@ -143,27 +185,60 @@ export default function HomePage() {
 
       {/* Workspaces Grid */}
       <div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "1.5rem",
+          }}
+        >
           <div>
-            <h2 style={{ fontSize: "1.45rem", fontWeight: 700, color: "#0f172a" }}>
+            <h2 style={{ fontSize: "1.45rem", fontWeight: 700, color: "#e2e8f0" }}>
               Explore Workspace Locations
             </h2>
             <p style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "0.2rem" }}>
               Click on any location below to view its floor plan and choose your desk or cabin.
             </p>
           </div>
-          <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>
-            {properties.length} Locations Available
+          <span
+            style={{
+              fontSize: "0.82rem",
+              color: "#FBCD54",
+              fontWeight: 600,
+              padding: "0.3rem 0.75rem",
+              background: "rgba(248,182,70,0.12)",
+              border: "1px solid rgba(248,182,70,0.25)",
+              borderRadius: "9999px",
+            }}
+          >
+            {properties.length} Locations
           </span>
         </div>
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "5rem 0", color: "#64748b" }}>
-            <div style={{ width: 40, height: 40, border: "3px solid #e2e8f0", borderTopColor: "#2563eb", borderRadius: "50%", margin: "0 auto 1rem", animation: "spin 1s linear infinite" }}></div>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                border: "3px solid rgba(255,255,255,0.08)",
+                borderTopColor: "#F8B646",
+                borderRadius: "50%",
+                margin: "0 auto 1rem",
+                animation: "spin 1s linear infinite",
+              }}
+            />
             <p>Loading available locations...</p>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "1.75rem" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
+              gap: "1.75rem",
+            }}
+          >
             {properties.map((property) => (
               <Link
                 key={property.id}
@@ -175,15 +250,19 @@ export default function HomePage() {
                   display: "flex",
                   flexDirection: "column",
                   overflow: "hidden",
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  transition: "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-4px)";
-                  e.currentTarget.style.boxShadow = "0 12px 25px -4px rgba(0, 0, 0, 0.08)";
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(248,182,70,0.3), inset 0 1px 0 rgba(255,255,255,0.1)";
+                  e.currentTarget.style.borderColor = "rgba(248,182,70,0.4)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.04)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
                 }}
               >
                 {/* Cover Image */}
@@ -193,42 +272,112 @@ export default function HomePage() {
                     alt={property.name}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
-                  <div style={{ position: "absolute", top: 12, right: 12, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)", padding: "0.25rem 0.55rem", borderRadius: "9999px", display: "flex", alignItems: "center", gap: 4, fontSize: "0.8rem", fontWeight: 700, color: "#d97706" }}>
-                    <Star size={13} fill="#d97706" /> {property.rating}
+                  {/* Overlay gradient */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(to bottom, transparent 50%, rgba(15,12,41,0.85) 100%)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 12,
+                      right: 12,
+                      background: "rgba(0,0,0,0.55)",
+                      backdropFilter: "blur(6px)",
+                      padding: "0.25rem 0.6rem",
+                      borderRadius: "9999px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      fontSize: "0.8rem",
+                      fontWeight: 700,
+                      color: "#fbbf24",
+                      border: "1px solid rgba(251,191,36,0.3)",
+                    }}
+                  >
+                    <Star size={13} fill="#fbbf24" /> {property.rating}
                   </div>
-                  <div style={{ position: "absolute", bottom: 12, left: 12, background: "rgba(15, 23, 42, 0.8)", color: "#ffffff", padding: "0.25rem 0.65rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 600 }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 12,
+                      left: 12,
+                      color: "#e2e8f0",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <MapPin size={13} color="#FBCD54" />
                     {property.locality}, {property.city}
                   </div>
                 </div>
 
                 {/* Body */}
-                <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", flexGrow: 1 }}>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#0f172a", marginBottom: "0.35rem" }}>
+                <div
+                  style={{
+                    padding: "1.25rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    flexGrow: 1,
+                  }}
+                >
+                  <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#e2e8f0", marginBottom: "0.35rem" }}>
                     {property.name}
                   </h3>
 
-                  <p style={{ fontSize: "0.85rem", color: "#475569", lineHeight: 1.5, marginBottom: "1rem" }}>
+                  <p style={{ fontSize: "0.85rem", color: "#94a3b8", lineHeight: 1.55, marginBottom: "1rem" }}>
                     {property.tagline || property.description}
                   </p>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.82rem", color: "#64748b", marginBottom: "1.25rem" }}>
-                    <MapPin size={14} color="#64748b" />
-                    <span>{property.address}</span>
-                  </div>
-
                   {/* Footer */}
-                  <div style={{ marginTop: "auto", paddingTop: "1rem", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div
+                    style={{
+                      marginTop: "auto",
+                      paddingTop: "1rem",
+                      borderTop: "1px solid rgba(255,255,255,0.07)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <div>
-                      <span style={{ fontSize: "0.72rem", color: "#94a3b8", textTransform: "uppercase", fontWeight: 600, display: "block" }}>
+                      <span
+                        style={{
+                          fontSize: "0.72rem",
+                          color: "#64748b",
+                          textTransform: "uppercase",
+                          fontWeight: 600,
+                          display: "block",
+                        }}
+                      >
                         From
                       </span>
-                      <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>
-                        ₹{property.priceStartingDay}
-                        <span style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 500 }}>/day</span>
+                      <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#e2e8f0" }}>
+                        â‚¹{property.priceStartingDay}
+                        <span style={{ fontSize: "0.78rem", color: "#94a3b8", fontWeight: 500 }}>/day</span>
                       </div>
                     </div>
 
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "#2563eb", color: "#ffffff", padding: "0.5rem 1rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 600 }}>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        background: "linear-gradient(135deg, #F8B646 0%, #d4981f 100%)",
+                        color: "#ffffff",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "8px",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        boxShadow: "0 4px 12px rgba(248,182,70,0.35)",
+                      }}
+                    >
                       <span>View Desks</span>
                       <ArrowRight size={15} />
                     </div>
@@ -242,3 +391,4 @@ export default function HomePage() {
     </div>
   );
 }
+

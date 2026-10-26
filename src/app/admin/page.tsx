@@ -18,13 +18,22 @@ export default function AdminDashboardPage() {
   const [properties, setProperties] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
+    try {
+      const stored = localStorage.getItem("bookmydesk_user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed) setCurrentUser(parsed);
+      }
+    } catch (e) {}
+
     async function loadData() {
       try {
         const [pRes, bRes] = await Promise.all([
           fetch("/api/properties"),
-          fetch("/api/bookings"),
+          fetch("/api/bookings?all=true"),
         ]);
         const pData = await pRes.json();
         const bData = await bRes.json();
@@ -50,7 +59,11 @@ export default function AdminDashboardPage() {
           Marketplace Admin Console
         </h1>
         <p style={{ fontSize: "0.88rem", color: "var(--text-muted)" }}>
-          PRD Section 4.3: Partner property verification, listing governance, and booking audit trail
+          {currentUser ? (
+            <>Administrator: <strong style={{ color: "#f8fafc" }}>{currentUser.name}</strong> ({currentUser.email}) • Showing full platform booking audit trail</>
+          ) : (
+            <>Platform overview • Showing all verified workspaces and customer reservations</>
+          )}
         </p>
       </div>
 

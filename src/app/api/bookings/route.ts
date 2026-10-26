@@ -15,10 +15,10 @@ export async function POST(request: NextRequest) {
       bookingPlan = "DAY",
       startAt,
       endAt,
-      guestName = "Yash Salvi",
-      guestEmail = "yash.salvi@example.com",
+      guestName,
+      guestEmail,
       guestPhone = "+91 98765 43210",
-      userId = "usr_customer_1",
+      userId,
       paymentMethod = "MOCK_UPI",
     } = body;
 
@@ -28,6 +28,34 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const effectiveEmail = (guestEmail || "guest@bookmydesk.in").trim().toLowerCase();
+    const effectiveName = guestName || effectiveEmail.split("@")[0];
+
+    // Ensure user exists in database
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ id: userId }] : []),
+          { email: effectiveEmail },
+        ],
+      },
+    });
+
+    if (!user) {
+      const generatedId = userId || `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      user = await prisma.user.create({
+        data: {
+          id: generatedId,
+          email: effectiveEmail,
+          name: effectiveName,
+          phone: guestPhone || "+91 98765 43210",
+          role: "CUSTOMER",
+        },
+      });
+    }
+
+    const effectiveUserId = user.id;
 
     const startDate = new Date(startAt);
     const endDate = new Date(endAt);
@@ -94,7 +122,7 @@ export async function POST(request: NextRequest) {
         bookingId,
         ref: bookingRef,
         item: item.code,
-        guest: guestName,
+        guest: effectiveName,
         plan: bookingPlan,
         validFrom: startDate.toISOString(),
       });
@@ -103,14 +131,14 @@ export async function POST(request: NextRequest) {
         data: {
           id: bookingId,
           bookingRef,
-          userId,
+          userId: effectiveUserId,
           propertyId,
           bookingPlan,
           startAt: startDate,
           endAt: endDate,
           status: "CONFIRMED",
-          guestName,
-          guestEmail,
+          guestName: effectiveName,
+          guestEmail: effectiveEmail,
           guestPhone,
           subtotal: discountedSubtotal,
           taxAmount,
@@ -176,12 +204,33 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") || "usr_customer_1";
+    const userId = searchParams.get("userId");
+    const email = searchParams.get("email");
     const status = searchParams.get("status");
+    const all = searchParams.get("all");
+    const role = searchParams.get("role");
 
-    const whereClause: any = { userId };
-    if (status && status !== "ALL") {
-      whereClause.status = status;
+    const whereClause: any = {};
+
+    // If requested for Admin portal (all=true or role=ADMIN), return all bookings across the platform
+    if (all === "true" || role === "ADMIN") {
+      if (status && status !== "ALL") {
+        whereClause.status = status;
+      }
+    } else {
+      // Strictly enforce account isolation for customer views: if user is not logged in, return empty
+      if (!userId && !email) {
+        return NextResponse.json({ success: true, count: 0, bookings: [] });
+      }
+
+      const userFilters: any[] = [];
+      if (userId) userFilters.push({ userId });
+      if (email) userFilters.push({ guestEmail: email.trim().toLowerCase() });
+
+      whereClause.OR = userFilters;
+      if (status && status !== "ALL") {
+        whereClause.status = status;
+      }
     }
 
     const bookings = await prisma.booking.findMany({

@@ -31,12 +31,28 @@ function CheckoutContent() {
   const [item, setItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("MOCK_UPI");
-  const [guestName, setGuestName] = useState("Yash Salvi");
-  const [guestEmail, setGuestEmail] = useState("yash.salvi@example.com");
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [guestName, setGuestName] = useState("Guest User");
+  const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("+91 98765 43210");
   const [policyAccepted, setPolicyAccepted] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Load active logged in user
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("bookmydesk_user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && (parsed.id || parsed.email)) {
+          setCurrentUser(parsed);
+          if (parsed.name) setGuestName(parsed.name);
+          if (parsed.email) setGuestEmail(parsed.email);
+        }
+      }
+    } catch (e) {}
+  }, []);
 
   // 5-minute (300 seconds) hold timer countdown
   const [secondsRemaining, setSecondsRemaining] = useState(300);
@@ -116,10 +132,10 @@ function CheckoutContent() {
           bookingPlan: plan,
           startAt,
           endAt,
-          guestName,
-          guestEmail,
+          guestName: currentUser?.name || guestName,
+          guestEmail: currentUser?.email || guestEmail,
           guestPhone,
-          userId: "usr_customer_1",
+          userId: currentUser?.id,
           paymentMethod,
         }),
       });

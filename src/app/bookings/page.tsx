@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 
 export default function MyBookingsPage() {
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState("ALL");
@@ -24,20 +26,68 @@ export default function MyBookingsPage() {
   const [cancelModalBooking, setCancelModalBooking] = useState<any | null>(null);
 
   useEffect(() => {
-    loadBookings();
-  }, [filterTab]);
+    const checkAuthAndLoad = () => {
+      try {
+        const stored = localStorage.getItem("bookmydesk_user");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && (parsed.id || parsed.email)) {
+            setCurrentUser(parsed);
+            setAuthChecked(true);
+            return;
+          }
+        }
+      } catch (e) {}
+      setCurrentUser(null);
+      setBookings([]);
+      setLoading(false);
+      setAuthChecked(true);
+    };
 
-  const loadBookings = async () => {
+    checkAuthAndLoad();
+    window.addEventListener("auth-change", checkAuthAndLoad);
+    window.addEventListener("storage", checkAuthAndLoad);
+    return () => {
+      window.removeEventListener("auth-change", checkAuthAndLoad);
+      window.removeEventListener("storage", checkAuthAndLoad);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (authChecked) {
+      if (currentUser) {
+        loadBookings(currentUser);
+      } else {
+        setBookings([]);
+        setLoading(false);
+      }
+    }
+  }, [filterTab, currentUser, authChecked]);
+
+  const loadBookings = async (user = currentUser) => {
+    if (!user) {
+      setBookings([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const q = filterTab !== "ALL" ? `?status=${filterTab}` : "";
-      const res = await fetch(`/api/bookings${q}`);
+      const params = new URLSearchParams();
+      if (user.id) params.append("userId", user.id);
+      if (user.email) params.append("email", user.email);
+      if (filterTab !== "ALL") params.append("status", filterTab);
+
+      const res = await fetch(`/api/bookings?${params.toString()}`);
       const data = await res.json();
       if (data.success) {
-        setBookings(data.bookings);
+        setBookings(data.bookings || []);
+      } else {
+        setBookings([]);
       }
     } catch (err) {
       console.error("Failed to load user bookings", err);
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -56,7 +106,7 @@ export default function MyBookingsPage() {
       if (data.success) {
         alert(data.message);
         setCancelModalBooking(null);
-        loadBookings();
+        loadBookings(currentUser);
       } else {
         alert(data.error || "Failed to cancel booking");
       }
@@ -69,92 +119,125 @@ export default function MyBookingsPage() {
 
   return (
     <div style={{ maxWidth: 1100, margin: "2rem auto 5rem", padding: "0 2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2rem" }}>
         <div>
-          <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.02em" }}>
             My Bookings
           </h1>
-          <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "0.2rem" }}>
-            View your reserved desks, cabins, and entry passes
-          </p>
+          {currentUser ? (
+            <p style={{ fontSize: "0.88rem", color: "#94a3b8", marginTop: "0.25rem" }}>
+              Showing reservations for <strong style={{ color: "#e2e8f0" }}>{currentUser.name}</strong> ({currentUser.email})
+            </p>
+          ) : (
+            <p style={{ fontSize: "0.88rem", color: "#94a3b8", marginTop: "0.25rem" }}>
+              Sign in with your account to access your reserved desks and passes
+            </p>
+          )}
         </div>
 
-        <button
-          type="button"
-          onClick={loadBookings}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            padding: "0.45rem 0.85rem",
-            borderRadius: "8px",
-            border: "1px solid #cbd5e1",
-            background: "#ffffff",
-            color: "#475569",
-            fontSize: "0.82rem",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          <RefreshCw size={14} />
-          <span>Refresh</span>
-        </button>
-      </div>
-
-      {/* Filter Tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1px solid #e2e8f0", paddingBottom: "0.75rem", marginBottom: "1.75rem" }}>
-        {["ALL", "CONFIRMED", "CHECKED_IN", "CANCELLED"].map((tab) => (
+        {currentUser && (
           <button
-            key={tab}
             type="button"
-            onClick={() => setFilterTab(tab)}
+            onClick={() => loadBookings(currentUser)}
             style={{
-              padding: "0.45rem 1rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.45rem 0.85rem",
               borderRadius: "8px",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "0.85rem",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              background: "rgba(255, 255, 255, 0.06)",
+              color: "#cbd5e1",
+              fontSize: "0.82rem",
               fontWeight: 600,
-              background: filterTab === tab ? "#eff6ff" : "transparent",
-              color: filterTab === tab ? "#1d4ed8" : "#64748b",
+              cursor: "pointer",
             }}
           >
-            {tab === "ALL" ? "All Bookings" : tab.replace("_", " ")}
+            <RefreshCw size={14} />
+            <span>Refresh</span>
           </button>
-        ))}
+        )}
       </div>
 
-      {loading ? (
-        <div style={{ textAlign: "center", padding: "4rem 0", color: "#64748b" }}>
-          <div style={{ width: 36, height: 36, border: "3px solid #e2e8f0", borderTopColor: "#2563eb", borderRadius: "50%", margin: "0 auto 1rem", animation: "spin 1s linear infinite" }}></div>
-          <p>Loading your reservations...</p>
-        </div>
-      ) : bookings.length === 0 ? (
-        <div className="clean-card" style={{ padding: "3.5rem 2rem", textAlign: "center", maxWidth: 500, margin: "2rem auto" }}>
-          <Calendar size={40} color="#94a3b8" style={{ margin: "0 auto 1rem" }} />
-          <h3 style={{ fontSize: "1.2rem", color: "#0f172a", marginBottom: "0.4rem" }}>
-            No Bookings Found
+      {!currentUser && authChecked ? (
+        <div className="clean-card" style={{ padding: "3.5rem 2rem", textAlign: "center", maxWidth: 500, margin: "3rem auto" }}>
+          <Calendar size={42} color="#818cf8" style={{ margin: "0 auto 1.25rem" }} />
+          <h3 style={{ fontSize: "1.35rem", fontWeight: 700, color: "#f8fafc", marginBottom: "0.6rem" }}>
+            Sign In to View Your Bookings
           </h3>
-          <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "1.5rem" }}>
-            You haven&apos;t reserved any desks or cabins yet.
+          <p style={{ fontSize: "0.9rem", color: "#94a3b8", marginBottom: "1.75rem", lineHeight: 1.6 }}>
+            You are currently signed out. Please sign in with your account to view your confirmed workspace passes.
           </p>
           <Link
-            href="/"
+            href="/signin?redirect=/bookings"
+            className="btn-my-bookings"
             style={{
               display: "inline-block",
-              background: "#2563eb",
-              color: "#ffffff",
-              padding: "0.6rem 1.25rem",
+              padding: "0.65rem 1.6rem",
               borderRadius: "8px",
               textDecoration: "none",
               fontWeight: 600,
-              fontSize: "0.9rem",
+              fontSize: "0.92rem",
             }}
           >
-            Explore Workspaces
+            Sign In Now
           </Link>
         </div>
       ) : (
+        <>
+          {/* Filter Tabs */}
+          <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", paddingBottom: "0.75rem", marginBottom: "1.75rem" }}>
+            {["ALL", "CONFIRMED", "CHECKED_IN", "CANCELLED"].map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setFilterTab(tab)}
+                style={{
+                  padding: "0.45rem 1rem",
+                  borderRadius: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  background: filterTab === tab ? "rgba(99, 102, 241, 0.2)" : "transparent",
+                  color: filterTab === tab ? "#a5b4fc" : "#94a3b8",
+                }}
+              >
+                {tab === "ALL" ? "All Bookings" : tab.replace("_", " ")}
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "4rem 0", color: "#94a3b8" }}>
+              <div style={{ width: 36, height: 36, border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "#6366f1", borderRadius: "50%", margin: "0 auto 1rem", animation: "spin 1s linear infinite" }}></div>
+              <p>Loading your reservations...</p>
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="clean-card" style={{ padding: "3.5rem 2rem", textAlign: "center", maxWidth: 500, margin: "2rem auto" }}>
+              <Calendar size={40} color="#64748b" style={{ margin: "0 auto 1rem" }} />
+              <h3 style={{ fontSize: "1.2rem", color: "#f8fafc", marginBottom: "0.4rem" }}>
+                No Bookings Found for this Account
+              </h3>
+              <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginBottom: "1.5rem" }}>
+                You haven&apos;t reserved any desks or cabins with <strong>{currentUser?.email}</strong> yet.
+              </p>
+              <Link
+                href="/"
+                className="btn-my-bookings"
+                style={{
+                  display: "inline-block",
+                  padding: "0.6rem 1.25rem",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: "0.9rem",
+                }}
+              >
+                Explore Workspaces
+              </Link>
+            </div>
+          ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {bookings.map((b) => {
             const item = b.items[0]?.inventoryItem;
@@ -262,8 +345,10 @@ export default function MyBookingsPage() {
           })}
         </div>
       )}
+      </>
+    )}
 
-      {/* Cancel Modal */}
+    {/* Cancel Modal */}
       {cancelModalBooking && (
         <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(15,23,42,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
           <div className="clean-card" style={{ maxWidth: 440, width: "100%", padding: "1.75rem", background: "#ffffff" }}>

@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { inventoryItemId, startAt, endAt, userId = "usr_customer_1" } = body;
+    const { inventoryItemId, startAt, endAt, userId } = body;
 
     if (!inventoryItemId || !startAt || !endAt) {
       return NextResponse.json(
@@ -16,9 +16,10 @@ export async function POST(request: NextRequest) {
 
     const startDate = new Date(startAt);
     const endDate = new Date(endAt);
+    const holdUserId = userId || `usr_hold_${Math.random().toString(36).substring(2, 8)}`;
 
     // Call atomic hold creator
-    const hold = await createTemporaryHold(userId, inventoryItemId, startDate, endDate, 5);
+    const hold = await createTemporaryHold(holdUserId, inventoryItemId, startDate, endDate, 5);
 
     return NextResponse.json({
       success: true,
